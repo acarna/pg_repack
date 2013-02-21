@@ -45,10 +45,12 @@ const char *PROGRAM_EMAIL	= "reorg-general@lists.pgfoundry.org";
 
 #define SQL_XID_ALIVE_80300 \
 	"SELECT pid FROM pg_locks WHERE locktype = 'virtualxid'"\
-	" AND pid <> pg_backend_pid() AND virtualtransaction = ANY($1)"
+	" AND pid <> pg_backend_pid() AND virtualtransaction = ANY($1)"\
+	" AND EXISTS (SELECT null FROM pg_stat_activity WHERE procpid = pg_locks.pid AND datname = current_database())"
 #define SQL_XID_ALIVE_80200 \
 	"SELECT pid FROM pg_locks WHERE locktype = 'transactionid'"\
-	" AND pid <> pg_backend_pid() AND transactionid = ANY($1)"
+	" AND pid <> pg_backend_pid() AND transactionid = ANY($1)"\
+	" AND EXISTS (SELECT null FROM pg_stat_activity WHERE procpid = pg_locks.pid AND datname = current_database())"
 
 #define SQL_XID_SNAPSHOT \
 	(PQserverVersion(connection) >= 80300 \
